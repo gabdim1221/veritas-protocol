@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/gabdim1221/veritas-protocol/spec/v0.1/schemas/authorship.schema.json",
+  "title": "Tessera authorship type_payload v0.1",
+  "description": "JSON Schema for the type_payload of an authorship Tessera per spec/v0.1/tessera.md §7.1. This schema validates the type_payload object only; the surrounding envelope is validated by tessera.schema.json.",
+  "type": "object",
+  "required": [
+    "subject",
+    "session",
+    "behavioral_fingerprint",
+    "ai_assistance_disclosure"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "subject": {
+      "type": "object",
+      "required": [
+        "content_hash",
+        "content_size_bytes",
+        "content_mime"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "content_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "sha256 hex digest of the work."
+        },
+        "content_size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "content_mime": {
+          "type": "string",
+          "minLength": 1,
+          "description": "MIME type of the work (e.g. text/markdown, image/png)."
+        },
+        "content_filename": {
+          "type": "string",
+          "description": "Optional original filename for context."
+        },
+        "content_uri": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional URI to a stable copy of the content."
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "required": [
+        "started_at",
+        "ended_at",
+        "duration_ms",
+        "tools_used"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ended_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tools_used": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of tool identifiers that participated in the authoring session (e.g. 'veritas-desktop@0.1', 'veritas-extension/chrome@0.1')."
+        }
+      }
+    },
+    "behavioral_fingerprint": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+={0,2}$",
+      "description": "base64url-encoded sha256 of the behavioral fingerprint vector. The raw vector stays on the issuer's client and is never transmitted as part of the Tessera (spec §10)."
+    },
+    "process_recording_hash": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+={0,2}$",
+      "description": "Optional base64url-encoded sha256 of an encrypted process recording. The plaintext is never part of the Tessera; release of the encrypted blob requires explicit user consent (spec §10)."
+    },
+    "ai_assistance_disclosure": {
+      "type": "string",
+      "enum": [
+        "none",
+        "spell_check",
+        "grammar",
+        "research",
+        "generation",
+        "other"
+      ]
+    }
+  }
+}

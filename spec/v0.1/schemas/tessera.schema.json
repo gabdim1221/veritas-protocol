@@ -1,0 +1,188 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/gabdim1221/veritas-protocol/spec/v0.1/schemas/tessera.schema.json",
+  "title": "Tessera Envelope v0.1",
+  "description": "JSON Schema for the Tessera v0.1 envelope as defined in spec/v0.1/tessera.md §2. Implementations MAY include additional fields in any object as long as the canonicalization and signing rules are preserved (spec §12); accordingly, additionalProperties is permitted by default.",
+  "type": "object",
+  "required": [
+    "version",
+    "type",
+    "tessera_id",
+    "issuer",
+    "claim",
+    "type_payload",
+    "biometric_attestation",
+    "anchor",
+    "signature"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "tessera/v0.1"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "authorship",
+        "witness",
+        "covenant",
+        "delegation",
+        "revocation",
+        "attestation",
+        "lodestone"
+      ]
+    },
+    "tessera_id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+      "description": "UUID v4 per RFC 4122."
+    },
+    "issuer": {
+      "type": "object",
+      "required": [
+        "user_handle",
+        "user_master_pubkey",
+        "device_pubkey",
+        "device_delegation_hash"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "user_handle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "user_master_pubkey": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+={0,2}$",
+          "description": "base64url-encoded Ed25519 public key (32 bytes when decoded)."
+        },
+        "device_pubkey": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+={0,2}$",
+          "description": "base64url-encoded Ed25519 public key (32 bytes when decoded). For delegation Tesserae signed directly by the master key, this equals user_master_pubkey."
+        },
+        "device_delegation_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$|^$",
+          "description": "sha256 hex of the delegation Tessera that authorized this device. Empty string permitted only for delegation Tesserae signed directly by the master key (the bootstrap case)."
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "required": [
+        "loa",
+        "issued_at"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "loa": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4,
+          "description": "Level of Assurance, see spec §4."
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 UTC timestamp."
+        }
+      }
+    },
+    "type_payload": {
+      "type": "object",
+      "description": "Type-specific payload. See per-type schemas (e.g. authorship.schema.json) for shapes."
+    },
+    "biometric_attestation": {
+      "type": "object",
+      "required": ["method"],
+      "additionalProperties": true,
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "webauthn",
+            "webauthn_liveness",
+            "kyc_bound",
+            "none"
+          ]
+        },
+        "authenticator_data": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+={0,2}$",
+          "description": "base64url-encoded WebAuthn authenticator data; required when method != 'none'."
+        },
+        "client_data_json": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+={0,2}$",
+          "description": "base64url-encoded WebAuthn client data JSON; required when method != 'none'."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "method": { "not": { "const": "none" } } }
+          },
+          "then": {
+            "required": ["method", "authenticator_data", "client_data_json"]
+          }
+        }
+      ]
+    },
+    "anchor": {
+      "type": "object",
+      "required": ["service"],
+      "additionalProperties": true,
+      "properties": {
+        "service": {
+          "type": "string",
+          "enum": [
+            "opentimestamps",
+            "rfc3161",
+            "custom"
+          ]
+        },
+        "ots_proof": {
+          "type": "string",
+          "description": "base64-encoded OpenTimestamps binary proof. Required when service = 'opentimestamps'."
+        },
+        "anchor_uri": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional URI to a standalone proof file."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "service": { "const": "opentimestamps" } }
+          },
+          "then": {
+            "required": ["service", "ots_proof"]
+          }
+        }
+      ]
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "algorithm",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "const": "Ed25519"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+={0,2}$",
+          "description": "base64url-encoded Ed25519 signature over the JCS canonicalization of the Tessera with the signature object removed (spec §3)."
+        }
+      }
+    }
+  }
+}
