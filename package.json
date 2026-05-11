@@ -1,0 +1,25 @@
+{
+  "name": "confirmata-protocol",
+  "version": "1.0.0",
+  "description": "The open standard for cryptographic attestation of human acts. Apache 2.0.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabdim1221/confirmata-protocol.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/gabdim1221/confirmata-protocol/issues"
+  },
+  "homepage": "https://github.com/gabdim1221/confirmata-protocol#readme",
+  "devDependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
+  }
+}

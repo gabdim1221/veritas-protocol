@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gabdim1221/confirmata-protocol/schemas/tessera-v0.1.json",
+  "title": "Tessera v0.1",
+  "description": "JSON Schema for Tessera protocol v0.1 envelope and all seven canonical type_payloads. Reverse-engineered from spec/v0.1/tessera.md. Verifiers MUST ignore unknown fields per §12 (additionalProperties: true).",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "version",
+    "type",
+    "tessera_id",
+    "issuer",
+    "claim",
+    "type_payload",
+    "biometric_attestation",
+    "anchor",
+    "signature"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "enum": ["tessera/v0.1"]
+    },
+    "type": {
+      "type": "string",
+      "enum": ["authorship", "witness", "covenant", "delegation", "revocation", "attestation", "lodestone"]
+    },
+    "tessera_id": {
+      "type": "string",
+      "description": "UUID v4. The version field of the UUID is not enforced by this schema."
+    },
+    "issuer": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["user_handle", "user_master_pubkey", "device_pubkey", "device_delegation_hash"],
+      "properties": {
+        "user_handle": { "type": "string" },
+        "user_master_pubkey": { "type": "string", "description": "base64url Ed25519 public key" },
+        "device_pubkey": { "type": "string", "description": "base64url Ed25519 public key" },
+        "device_delegation_hash": { "type": "string", "description": "sha256 hex of the delegation Tessera, or empty string when this Tessera IS the delegation" }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["loa", "issued_at"],
+      "properties": {
+        "loa": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "issued_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "type_payload": {
+      "type": "object",
+      "description": "Type-specific payload. Validated structurally; semantic correctness (e.g. authorship.subject.content_hash matches actual content) is the verifier's job. additionalProperties: true to permit type-specific extensions."
+    },
+    "biometric_attestation": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["method"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["webauthn", "webauthn_liveness", "kyc_bound", "none"]
+        },
+        "authenticator_data": { "type": "string" },
+        "client_data_json": { "type": "string" }
+      }
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["service"],
+      "properties": {
+        "service": {
+          "type": "string",
+          "enum": ["opentimestamps", "rfc3161", "custom"]
+        },
+        "ots_proof": { "type": "string" },
+        "anchor_uri": { "type": "string", "format": "uri" }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["algorithm", "value"],
+      "properties": {
+        "algorithm": { "type": "string", "enum": ["Ed25519"] },
+        "value": { "type": "string", "description": "base64url Ed25519 signature over JCS-canonicalized payload (with signature object removed)" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "authorship" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["subject", "session", "behavioral_fingerprint", "ai_assistance_disclosure"],
+            "properties": {
+              "subject": {
+                "type": "object",
+                "required": ["content_hash", "content_size_bytes", "content_mime"],
+                "properties": {
+                  "content_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+                  "content_size_bytes": { "type": "integer", "minimum": 0 },
+                  "content_mime": { "type": "string" },
+                  "content_filename": { "type": "string" },
+                  "content_uri": { "type": "string" }
+                }
+              },
+              "session": {
+                "type": "object",
+                "required": ["started_at", "ended_at", "duration_ms", "tools_used"],
+                "properties": {
+                  "started_at": { "type": "string", "format": "date-time" },
+                  "ended_at": { "type": "string", "format": "date-time" },
+                  "duration_ms": { "type": "integer", "minimum": 0 },
+                  "tools_used": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              },
+              "behavioral_fingerprint": { "type": "string" },
+              "process_recording_hash": { "type": "string" },
+              "ai_assistance_disclosure": {
+                "type": "string",
+                "enum": ["none", "spell_check", "grammar", "research", "generation", "other"]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "delegation" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["delegated_pubkey", "device_name", "device_platform", "scope", "valid_from"],
+            "properties": {
+              "delegated_pubkey": { "type": "string" },
+              "device_name": { "type": "string" },
+              "device_platform": { "type": "string" },
+              "scope": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "valid_from": { "type": "string", "format": "date-time" },
+              "valid_until": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "revocation" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["revoked_tessera_hash", "reason"],
+            "properties": {
+              "revoked_tessera_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "reason": {
+                "type": "string",
+                "enum": ["compromised", "mistake", "retracted", "superseded", "other"]
+              },
+              "reason_text": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "witness" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["observation"],
+            "properties": {
+              "observation": {},
+              "subject_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "location": {
+                "type": "object",
+                "properties": {
+                  "latitude": { "type": "number" },
+                  "longitude": { "type": "number" },
+                  "accuracy_m": { "type": "number" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "covenant" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["covenant_id", "parties", "terms", "effective_from"],
+            "properties": {
+              "covenant_id": { "type": "string" },
+              "parties": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "terms": {},
+              "subject_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "effective_from": { "type": "string", "format": "date-time" },
+              "effective_until": { "type": ["string", "null"] },
+              "co_signatures": { "type": "array" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "attestation" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["subject_handle", "subject_master_pubkey", "claim", "valid_from"],
+            "properties": {
+              "subject_handle": { "type": "string" },
+              "subject_master_pubkey": { "type": "string" },
+              "claim": {},
+              "valid_from": { "type": "string", "format": "date-time" },
+              "valid_until": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "lodestone" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["topic", "stance"],
+            "properties": {
+              "topic": { "type": "string" },
+              "stance": {},
+              "supersedes": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
