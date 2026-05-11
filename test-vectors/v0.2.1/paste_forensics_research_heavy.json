@@ -1,0 +1,160 @@
+{
+  "description": "v0.2.1 paste_events: 90-min academic session, ~91% human / 0% AI / 9% ambiguous. 6 paste events — 5 research_quotation (arxiv + Wikipedia), 1 internal_authored (own Word draft). Demonstrates legitimate quotation-heavy authorship; satisfies academic_70_plus and creative_writing_50_plus.",
+  "tessera": {
+    "version": "tessera/v0.2.1",
+    "type": "authorship",
+    "tessera_id": "dddd2222-2222-4222-8222-dddddddddddd",
+    "issuer": {
+      "user_handle": "alice",
+      "user_master_pubkey": "T81Auc_g57iYuiYP8O6osEVPhTfsX9RB7TTAN6t5R8A",
+      "device_pubkey": "L52q0DKmR1ePGGoH8nzDX-TjIHAIRMJ8WDYLpyjd-jw",
+      "device_delegation_hash": "a46fdd274445e62bad2538cd0c39bbedf770213f36947c5fe87db1c5cb6c8ebc"
+    },
+    "claim": {
+      "loa": 3,
+      "issued_at": "2026-05-08T19:00:00.000Z"
+    },
+    "type_payload": {
+      "subject": {
+        "content_hash": "01ec85e54ac680e817e714ae28e3dba9ed8711a74e5e59a744a2f7a3b06747e6",
+        "content_size_bytes": 66,
+        "content_mime": "text/plain",
+        "content_filename": "conformance.txt"
+      },
+      "session": {
+        "started_at": "2026-05-08T19:00:00.000Z",
+        "ended_at": "2026-05-08T20:30:00.000Z",
+        "duration_ms": 5400000,
+        "tools_used": [
+          "confirmata-conformance@v0.2.1"
+        ]
+      },
+      "behavioral_fingerprint": "AeyF5UrGgOgX5xSuKOPbqe2HEadOXlmnRKL3o7BnR-Y",
+      "ai_assistance_disclosure": "research"
+    },
+    "biometric_attestation": {
+      "method": "webauthn_liveness",
+      "authenticator_data": "zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMw",
+      "client_data_json": "3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3Q"
+    },
+    "anchor": {
+      "service": "opentimestamps",
+      "ots_proof": "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urqw"
+    },
+    "composition_analysis": {
+      "version": "1",
+      "total_session_ms": 5400000,
+      "buckets": {
+        "human_active_ms": 4000000,
+        "ai_assisted_ms": 0,
+        "voice_authored_ms": 100000,
+        "paste_inserted_ms": 400000,
+        "context_review_ms": 600000,
+        "idle_ms": 300000
+      },
+      "computed_authorship": {
+        "human_pct": 91.1,
+        "ai_assisted_pct": 0,
+        "ambiguous_pct": 8.9,
+        "confidence": "high"
+      },
+      "classification_method": "confirmata_classifier_v1.0",
+      "policy_eligible_categories": [
+        "academic_70_plus",
+        "journalism_60_plus",
+        "creative_writing_50_plus"
+      ],
+      "paste_events": [
+        {
+          "timestamp_ms": 600000,
+          "size_chars": 380,
+          "source_classification": "research_quotation",
+          "source_evidence": "chrome:arxiv.org",
+          "confidence": "high",
+          "contributed_to_bucket": "paste_inserted_ms"
+        },
+        {
+          "timestamp_ms": 1200000,
+          "size_chars": 220,
+          "source_classification": "research_quotation",
+          "source_evidence": "chrome:en.wikipedia.org",
+          "confidence": "high",
+          "contributed_to_bucket": "paste_inserted_ms"
+        },
+        {
+          "timestamp_ms": 1950000,
+          "size_chars": 510,
+          "source_classification": "research_quotation",
+          "source_evidence": "chrome:arxiv.org",
+          "confidence": "high",
+          "contributed_to_bucket": "paste_inserted_ms"
+        },
+        {
+          "timestamp_ms": 2640000,
+          "size_chars": 145,
+          "source_classification": "research_quotation",
+          "source_evidence": "chrome:en.wikipedia.org",
+          "confidence": "medium",
+          "contributed_to_bucket": "paste_inserted_ms"
+        },
+        {
+          "timestamp_ms": 3400000,
+          "size_chars": 690,
+          "source_classification": "research_quotation",
+          "source_evidence": "chrome:arxiv.org",
+          "confidence": "high",
+          "contributed_to_bucket": "paste_inserted_ms"
+        },
+        {
+          "timestamp_ms": 4500000,
+          "size_chars": 95,
+          "source_classification": "internal_authored",
+          "source_evidence": "app:com.microsoft.Word",
+          "confidence": "high",
+          "contributed_to_bucket": "paste_inserted_ms"
+        }
+      ]
+    },
+    "signature": {
+      "algorithm": "Ed25519",
+      "value": "uYoy6S4OG_Ir2TIVJQfatKbujhOu4_4QeQjG0OFKGSovJd06u1eQh3yDkEacWJuRqNBDLLH-v2vazq0gVrPABA"
+    }
+  },
+  "delegation": {
+    "version": "tessera/v0.1",
+    "type": "delegation",
+    "tessera_id": "11111111-1111-4111-8111-111111111111",
+    "issuer": {
+      "user_handle": "alice",
+      "user_master_pubkey": "T81Auc_g57iYuiYP8O6osEVPhTfsX9RB7TTAN6t5R8A",
+      "device_pubkey": "T81Auc_g57iYuiYP8O6osEVPhTfsX9RB7TTAN6t5R8A",
+      "device_delegation_hash": ""
+    },
+    "claim": {
+      "loa": 0,
+      "issued_at": "2026-05-08T17:00:00.000Z"
+    },
+    "type_payload": {
+      "delegated_pubkey": "L52q0DKmR1ePGGoH8nzDX-TjIHAIRMJ8WDYLpyjd-jw",
+      "device_name": "alice-test-device",
+      "device_platform": "test",
+      "scope": [
+        "sign:authorship",
+        "sign:revocation"
+      ],
+      "valid_from": "2026-05-08T17:00:00.000Z",
+      "valid_until": "2099-01-01T00:00:00.000Z"
+    },
+    "biometric_attestation": {
+      "method": "none"
+    },
+    "anchor": {
+      "service": "opentimestamps",
+      "ots_proof": "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urqw"
+    },
+    "signature": {
+      "algorithm": "Ed25519",
+      "value": "poqI-FV5_dZxf-x_h7erk7N3298tuSxdUjCFpx6tdX3I1tUdGznzxyU8mOiItyaOCAknZnv3pNJTSh6ZwFP5Dw"
+    }
+  }
+}

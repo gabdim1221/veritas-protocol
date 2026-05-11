@@ -1,0 +1,111 @@
+{
+  "description": "v0.2.1 paste_events: 30-min pure-keyboard session, 100% human authorship. paste_events: [] exercises the empty-array path — the verifier MUST accept this as valid (invariant 1).",
+  "tessera": {
+    "version": "tessera/v0.2.1",
+    "type": "authorship",
+    "tessera_id": "dddd3333-3333-4333-8333-dddddddddddd",
+    "issuer": {
+      "user_handle": "alice",
+      "user_master_pubkey": "T81Auc_g57iYuiYP8O6osEVPhTfsX9RB7TTAN6t5R8A",
+      "device_pubkey": "L52q0DKmR1ePGGoH8nzDX-TjIHAIRMJ8WDYLpyjd-jw",
+      "device_delegation_hash": "a46fdd274445e62bad2538cd0c39bbedf770213f36947c5fe87db1c5cb6c8ebc"
+    },
+    "claim": {
+      "loa": 3,
+      "issued_at": "2026-05-08T19:00:00.000Z"
+    },
+    "type_payload": {
+      "subject": {
+        "content_hash": "d297329d12adcd88758104a799c61e830134877f61a502d9fd7884c77c3f5f85",
+        "content_size_bytes": 61,
+        "content_mime": "text/plain",
+        "content_filename": "conformance.txt"
+      },
+      "session": {
+        "started_at": "2026-05-08T19:00:00.000Z",
+        "ended_at": "2026-05-08T19:30:00.000Z",
+        "duration_ms": 1800000,
+        "tools_used": [
+          "confirmata-conformance@v0.2.1"
+        ]
+      },
+      "behavioral_fingerprint": "0pcynRKtzYh1gQSnmcYegwE0h39hpQLZ_XiEx3w_X4U",
+      "ai_assistance_disclosure": "none"
+    },
+    "biometric_attestation": {
+      "method": "webauthn_liveness",
+      "authenticator_data": "zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMw",
+      "client_data_json": "3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3Q"
+    },
+    "anchor": {
+      "service": "opentimestamps",
+      "ots_proof": "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urqw"
+    },
+    "composition_analysis": {
+      "version": "1",
+      "total_session_ms": 1800000,
+      "buckets": {
+        "human_active_ms": 1680000,
+        "ai_assisted_ms": 0,
+        "voice_authored_ms": 0,
+        "paste_inserted_ms": 0,
+        "context_review_ms": 60000,
+        "idle_ms": 60000
+      },
+      "computed_authorship": {
+        "human_pct": 100,
+        "ai_assisted_pct": 0,
+        "ambiguous_pct": 0,
+        "confidence": "high"
+      },
+      "classification_method": "confirmata_classifier_v1.0",
+      "policy_eligible_categories": [
+        "academic_70_plus",
+        "journalism_60_plus",
+        "creative_writing_50_plus"
+      ],
+      "paste_events": []
+    },
+    "signature": {
+      "algorithm": "Ed25519",
+      "value": "wFYJJlN9PwMOWSdRw_vkTa-gsdK08oDdff_Nw2yoQeVln3kxjXdyCcff-k9u01rzulRe8F2K0K7O4afeBh3wCw"
+    }
+  },
+  "delegation": {
+    "version": "tessera/v0.1",
+    "type": "delegation",
+    "tessera_id": "11111111-1111-4111-8111-111111111111",
+    "issuer": {
+      "user_handle": "alice",
+      "user_master_pubkey": "T81Auc_g57iYuiYP8O6osEVPhTfsX9RB7TTAN6t5R8A",
+      "device_pubkey": "T81Auc_g57iYuiYP8O6osEVPhTfsX9RB7TTAN6t5R8A",
+      "device_delegation_hash": ""
+    },
+    "claim": {
+      "loa": 0,
+      "issued_at": "2026-05-08T17:00:00.000Z"
+    },
+    "type_payload": {
+      "delegated_pubkey": "L52q0DKmR1ePGGoH8nzDX-TjIHAIRMJ8WDYLpyjd-jw",
+      "device_name": "alice-test-device",
+      "device_platform": "test",
+      "scope": [
+        "sign:authorship",
+        "sign:revocation"
+      ],
+      "valid_from": "2026-05-08T17:00:00.000Z",
+      "valid_until": "2099-01-01T00:00:00.000Z"
+    },
+    "biometric_attestation": {
+      "method": "none"
+    },
+    "anchor": {
+      "service": "opentimestamps",
+      "ots_proof": "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urqw"
+    },
+    "signature": {
+      "algorithm": "Ed25519",
+      "value": "poqI-FV5_dZxf-x_h7erk7N3298tuSxdUjCFpx6tdX3I1tUdGznzxyU8mOiItyaOCAknZnv3pNJTSh6ZwFP5Dw"
+    }
+  }
+}

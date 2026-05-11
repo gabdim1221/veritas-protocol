@@ -1,0 +1,370 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gabdim1221/confirmata-protocol/schemas/tessera-v0.2.1.json",
+  "title": "Tessera v0.2.1",
+  "description": "JSON Schema for Tessera protocol v0.2.1. Strictly additive over v0.2: adds the optional composition_analysis.paste_events auxiliary array. v0.1 and v0.2 Tesserae remain valid under this schema. Verifiers MUST ignore unknown fields per §12 (additionalProperties: true).",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "version",
+    "type",
+    "tessera_id",
+    "issuer",
+    "claim",
+    "type_payload",
+    "biometric_attestation",
+    "anchor",
+    "signature"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "enum": ["tessera/v0.1", "tessera/v0.2", "tessera/v0.2.1"],
+      "description": "v0.2.1 verifiers accept v0.1, v0.2, and v0.2.1 envelope versions."
+    },
+    "type": {
+      "type": "string",
+      "enum": ["authorship", "witness", "covenant", "delegation", "revocation", "attestation", "lodestone"]
+    },
+    "tessera_id": { "type": "string" },
+    "issuer": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["user_handle", "user_master_pubkey", "device_pubkey", "device_delegation_hash"],
+      "properties": {
+        "user_handle": { "type": "string" },
+        "user_master_pubkey": { "type": "string" },
+        "device_pubkey": { "type": "string" },
+        "device_delegation_hash": { "type": "string" }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["loa", "issued_at"],
+      "properties": {
+        "loa": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "issued_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "type_payload": {
+      "type": "object",
+      "description": "Type-specific payload. Validated structurally; semantic correctness is the verifier's job."
+    },
+    "biometric_attestation": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["method"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["webauthn", "webauthn_liveness", "kyc_bound", "none"]
+        },
+        "authenticator_data": { "type": "string" },
+        "client_data_json": { "type": "string" }
+      }
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["service"],
+      "properties": {
+        "service": {
+          "type": "string",
+          "enum": ["opentimestamps", "rfc3161", "custom"]
+        },
+        "ots_proof": { "type": "string" },
+        "anchor_uri": { "type": "string", "format": "uri" }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["algorithm", "value"],
+      "properties": {
+        "algorithm": { "type": "string", "enum": ["Ed25519"] },
+        "value": { "type": "string" }
+      }
+    },
+    "composition_analysis": {
+      "type": "object",
+      "description": "Optional graduated human-vs-AI authorship breakdown. Permitted only on type=authorship Tesserae. Invariants 1 (bucket sum equals total_session_ms within ±100ms), 2 (percentage sum in [99.0, 101.0]), 4 (omit if authorship_time < 1000ms), and 5 (voice_authored_ms counts as human) are not expressible in JSON Schema and must be enforced by the verifier — see spec/v0.2/tessera.md §13.3.",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "total_session_ms",
+        "buckets",
+        "computed_authorship",
+        "classification_method"
+      ],
+      "properties": {
+        "version": { "type": "string", "const": "1" },
+        "total_session_ms": { "type": "integer", "exclusiveMinimum": 0 },
+        "buckets": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "human_active_ms",
+            "ai_assisted_ms",
+            "voice_authored_ms",
+            "paste_inserted_ms",
+            "context_review_ms",
+            "idle_ms"
+          ],
+          "properties": {
+            "human_active_ms": { "type": "integer", "minimum": 0 },
+            "ai_assisted_ms": { "type": "integer", "minimum": 0 },
+            "voice_authored_ms": { "type": "integer", "minimum": 0 },
+            "paste_inserted_ms": { "type": "integer", "minimum": 0 },
+            "context_review_ms": { "type": "integer", "minimum": 0 },
+            "idle_ms": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "computed_authorship": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["human_pct", "ai_assisted_pct", "ambiguous_pct", "confidence"],
+          "properties": {
+            "human_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+            "ai_assisted_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+            "ambiguous_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+            "confidence": { "type": "string", "enum": ["high", "medium", "low"] }
+          }
+        },
+        "classification_method": {
+          "type": "string",
+          "pattern": "^[a-z_]+_classifier_v\\d+\\.\\d+$"
+        },
+        "policy_eligible_categories": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "paste_events": {
+          "type": "array",
+          "description": "Auxiliary v0.2.1 array of per-paste-event source classifications. Forensic, not enforcement — bucket totals (§13.2) remain the canonical authorship measurement. See spec/v0.2.1/tessera.md §13.6.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "timestamp_ms",
+              "size_chars",
+              "source_classification",
+              "source_evidence",
+              "confidence",
+              "contributed_to_bucket"
+            ],
+            "properties": {
+              "timestamp_ms": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Offset from session start in milliseconds. The cross-field bound (≤ total_session_ms) is not expressible in JSON Schema and is enforced by the verifier (§13.6.3 invariant 3)."
+              },
+              "size_chars": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              },
+              "source_classification": {
+                "type": "string",
+                "enum": [
+                  "ai_tool",
+                  "research_quotation",
+                  "internal_authored",
+                  "messaging",
+                  "code_repository",
+                  "unknown"
+                ]
+              },
+              "source_evidence": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "description": "Compact descriptive identifier, format {type}:{specifier}. Examples: chrome:chat.openai.com, app:com.openai.chat, process:com.anthropic.claudefordesktop, app:com.apple.Notes, unknown:unknown."
+              },
+              "confidence": {
+                "type": "string",
+                "enum": ["high", "medium", "low"]
+              },
+              "contributed_to_bucket": {
+                "type": "string",
+                "enum": [
+                  "human_active_ms",
+                  "ai_assisted_ms",
+                  "voice_authored_ms",
+                  "paste_inserted_ms",
+                  "context_review_ms",
+                  "idle_ms"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "authorship" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["subject", "session", "behavioral_fingerprint", "ai_assistance_disclosure"],
+            "properties": {
+              "subject": {
+                "type": "object",
+                "required": ["content_hash", "content_size_bytes", "content_mime"],
+                "properties": {
+                  "content_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+                  "content_size_bytes": { "type": "integer", "minimum": 0 },
+                  "content_mime": { "type": "string" },
+                  "content_filename": { "type": "string" },
+                  "content_uri": { "type": "string" }
+                }
+              },
+              "session": {
+                "type": "object",
+                "required": ["started_at", "ended_at", "duration_ms", "tools_used"],
+                "properties": {
+                  "started_at": { "type": "string", "format": "date-time" },
+                  "ended_at": { "type": "string", "format": "date-time" },
+                  "duration_ms": { "type": "integer", "minimum": 0 },
+                  "tools_used": { "type": "array", "items": { "type": "string" } }
+                }
+              },
+              "behavioral_fingerprint": { "type": "string" },
+              "process_recording_hash": { "type": "string" },
+              "ai_assistance_disclosure": {
+                "type": "string",
+                "enum": ["none", "spell_check", "grammar", "research", "generation", "other"]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "delegation" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["delegated_pubkey", "device_name", "device_platform", "scope", "valid_from"],
+            "properties": {
+              "delegated_pubkey": { "type": "string" },
+              "device_name": { "type": "string" },
+              "device_platform": { "type": "string" },
+              "scope": { "type": "array", "items": { "type": "string" } },
+              "valid_from": { "type": "string", "format": "date-time" },
+              "valid_until": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "revocation" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["revoked_tessera_hash", "reason"],
+            "properties": {
+              "revoked_tessera_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "reason": {
+                "type": "string",
+                "enum": ["compromised", "mistake", "retracted", "superseded", "other"]
+              },
+              "reason_text": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "witness" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["observation"],
+            "properties": {
+              "observation": {},
+              "subject_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "location": {
+                "type": "object",
+                "properties": {
+                  "latitude": { "type": "number" },
+                  "longitude": { "type": "number" },
+                  "accuracy_m": { "type": "number" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "covenant" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["covenant_id", "parties", "terms", "effective_from"],
+            "properties": {
+              "covenant_id": { "type": "string" },
+              "parties": { "type": "array", "items": { "type": "string" } },
+              "terms": {},
+              "subject_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "effective_from": { "type": "string", "format": "date-time" },
+              "effective_until": { "type": ["string", "null"] },
+              "co_signatures": { "type": "array" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "attestation" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["subject_handle", "subject_master_pubkey", "claim", "valid_from"],
+            "properties": {
+              "subject_handle": { "type": "string" },
+              "subject_master_pubkey": { "type": "string" },
+              "claim": {},
+              "valid_from": { "type": "string", "format": "date-time" },
+              "valid_until": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "lodestone" } } },
+      "then": {
+        "properties": {
+          "type_payload": {
+            "type": "object",
+            "required": ["topic", "stance"],
+            "properties": {
+              "topic": { "type": "string" },
+              "stance": {},
+              "supersedes": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "type": { "not": { "const": "authorship" } } },
+        "required": ["type"]
+      },
+      "then": {
+        "not": { "required": ["composition_analysis"] }
+      }
+    }
+  ]
+}

@@ -19,7 +19,10 @@
   },
   "homepage": "https://github.com/gabdim1221/confirmata-protocol#readme",
   "devDependencies": {
+    "@noble/ed25519": "^2.3.0",
+    "@noble/hashes": "^1.8.0",
     "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "canonicalize": "^2.1.0"
   }
 }
